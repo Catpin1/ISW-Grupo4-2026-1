@@ -1,7 +1,24 @@
 {
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "nano": "^11.0.5",
+    "pg": "^8.20.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.28",
+    "url": "^0.11.4"
+  },
+  "name": "isw-grupo4-2026-1",
+  "version": "1.0.0",
+  "description": "Desarrollo de la plataforma web para la Escuela de Conducción",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
     "nodemon": "^3.1.14"
   }
 }
