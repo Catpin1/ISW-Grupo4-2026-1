@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "nano": "^11.0.5",
+    "nodemon": "^3.1.14"
+  },
+  "name": "isw-grupo4-2026-1",
+  "version": "1.0.0",
+  "description": "Desarrollo de la plataforma web para la Escuela de Conducción",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Catpin1/ISW-Grupo4-2026-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Catpin1/ISW-Grupo4-2026-1/issues"
+  },
+  "homepage": "https://github.com/Catpin1/ISW-Grupo4-2026-1#readme"
+}
