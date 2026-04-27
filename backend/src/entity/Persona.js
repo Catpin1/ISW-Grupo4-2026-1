@@ -6,10 +6,15 @@ const PersonaSchema = new EntitySchema({
 name: "Persona",
 tableName: "Personas",
 columns: {
+
+    id:{
+        type: "int",
+        primary: true,
+        generated: true,
+    },
     rut: {
         type: "varchar",
         length: 20,
-        primary: true,
         nullable: false,
         unique: true,
     },
