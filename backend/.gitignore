@@ -4,6 +4,10 @@
 ### dotenv ###
 .env
 
+# Dependency directories
+node_modules/
+jspm_packages/
+
 ### Linux ###
 *~
 
@@ -97,6 +101,3 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,venv,dotenv,virtualenv
-
-node_modules/
-.env
