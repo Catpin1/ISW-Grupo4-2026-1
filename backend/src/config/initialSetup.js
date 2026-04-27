@@ -24,7 +24,7 @@ export async function createPersonas() {
                 nombrecompleto: "Admin",
                 correo: "admin@conduccion.com",
                 password: await encryptPassword("admin123"),
-                rut: "123",
+                rut: "12345678-9 ",
                 rol: "admin",
                 direccion: "local",
                 localidad: "local",
