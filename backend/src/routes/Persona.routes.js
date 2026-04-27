@@ -14,6 +14,8 @@ import {
 
 const router = Router();
 
+router.use(authenticateJwt);
+
 router
 
 .get("/", authorizeRoles("admin"), getPersonas)
