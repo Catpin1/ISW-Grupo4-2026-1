@@ -1,8 +1,16 @@
 {
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
     "nano": "^11.0.5",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.28",
@@ -12,6 +20,7 @@
   "version": "1.0.0",
   "description": "Desarrollo de la plataforma web para la Escuela de Conducción",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
