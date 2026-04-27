@@ -17,7 +17,7 @@ export const sendErrorServer = (res, error, statusCode = 500) => {
 export const sendErrorClient = (res, error, statusCode = 400) => {
   return res.status(statusCode).json({
     success: false,
-    error: error.message || 'Error interno de usuario,
+    error: error.message || 'Error interno de usuario',
     // Opcional: code: 'AUTH_001' para errores específicos
   });
 };
