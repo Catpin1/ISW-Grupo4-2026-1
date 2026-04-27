@@ -10,6 +10,7 @@
   },
   "name": "isw-grupo4-2026-1",
   "version": "1.0.0",
+  "type":"module",
   "description": "Desarrollo de la plataforma web para la Escuela de Conducción",
   "main": "index.js",
   "scripts": {
