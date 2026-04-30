@@ -22,7 +22,6 @@
   "type":"module",
   "description": "Desarrollo de la plataforma web para la Escuela de Conducción",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
