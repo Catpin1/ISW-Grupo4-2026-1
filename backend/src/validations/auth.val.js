@@ -1,32 +1,42 @@
-const Joi = require('joi');
+"use strict";
 
+import Joi from "joi";
 
-const registerSchema = Joi.object({
-  username: Joi.string().min(3).max(30).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
+export const registerSchema = Joi.object({
+    correo: Joi.string().email().required().messages({
+        "string.email": "El correo debe ser válido",
+        "any.required": "El correo es obligatorio"
+    }),
+    password: Joi.string().min(6).required().messages({
+        "string.min": "La contraseña debe tener al menos 6 caracteres",
+        "any.required": "La contraseña es obligatoria"
+    }),
+    nombrecompleto: Joi.string().required().messages({
+        "any.required": "El nombre completo es obligatorio"
+    }),
+    rut: Joi.string().required().messages({
+        "any.required": "El RUT es obligatorio"
+    }),
+    rol: Joi.string().required().messages({
+        "any.required": "El rol es obligatorio"
+    }),
+    direccion: Joi.string().required().messages({
+        "any.required": "La dirección es obligatoria"
+    }),
+    localidad: Joi.string().required().messages({
+        "any.required": "La localidad es obligatoria"
+    }),
+    edad: Joi.number().required().messages({
+        "any.required": "La edad es obligatoria"
+    })
 });
 
-
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+export const loginSchema = Joi.object({
+    correo: Joi.string().email().required().messages({
+        "string.email": "El correo debe ser válido",
+        "any.required": "El correo es obligatorio"
+    }),
+    password: Joi.string().required().messages({
+        "any.required": "La contraseña es obligatoria"
+    })
 });
-
-
-const validateAuth = (schema) => {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        error: error.details[0].message,
-      });
-    }
-    next();
-  };
-};
-
-module.exports = {
-  validateRegister: validateAuth(registerSchema),
-  validateLogin: validateAuth(loginSchema),
-};

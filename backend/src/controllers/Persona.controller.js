@@ -76,3 +76,4 @@ export const deletePersona = async (req, res) => {
         res.status(500).json({ message: "Error al eliminar a la persona", error });
     }
 };
+

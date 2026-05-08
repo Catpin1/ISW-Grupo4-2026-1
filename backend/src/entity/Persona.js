@@ -55,3 +55,5 @@ columns: {
     }
 }
 })
+
+export default PersonaSchema;

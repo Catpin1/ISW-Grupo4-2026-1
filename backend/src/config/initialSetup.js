@@ -1,8 +1,7 @@
 "use strict";
 
-import bcrypt from "bcrypt.js";
+import bcrypt from "bcryptjs";
 import { AppDataSource } from "./configDb.js";
-import Persona from "../entity/Persona.js";
 
 async function encryptPassword(PASSWORD) {
     const saltRounds = 10;
@@ -11,46 +10,49 @@ async function encryptPassword(PASSWORD) {
 
 export async function createPersonas() {
     try {
-        const PersonaRepository = AppDataSource.getRepository(Persona);
-        const count = await userRepository.count();
+        const PersonaRepository = AppDataSource.getRepository("Persona");
+        const count = await PersonaRepository.count();
 
-        if (count > 0) return;
+        if (count > 0) {
+            console.log("✓ Usuarios ya existen, omitiendo creación");
+            return;
+        }
 
-        const now = new Date();
+        console.log("Creando usuarios iniciales...");
 
         //Generar usuarios Iniciales
         await Promise.all([
-            userRepository.save(userRepository.create({
+            PersonaRepository.save(PersonaRepository.create({
                 nombrecompleto: "Admin",
                 correo: "admin@conduccion.com",
                 password: await encryptPassword("admin123"),
-                rut: "12345678-9 ",
-                rol: "admin",
+                rut: "12345678-9",
+                rol: "Admin",
                 direccion: "local",
                 localidad: "local",
                 edad: 40
             })),
-            userRepository.save(userRepository.create({
-                nombrecompleto: "secretario",
-                correo: "secretarion@conduccion.com",
+            PersonaRepository.save(PersonaRepository.create({
+                nombrecompleto: "Secretario",
+                correo: "secretario@conduccion.com",
                 password: await encryptPassword("secret123"),
-                rut: "1234",
-                rol: "secretario",
+                rut: "12345679-0",
+                rol: "Secretario",
                 direccion: "local1",
                 localidad: "local1",
                 edad: 30
             })),
-            userRepository.save(userRepository.create({
+            PersonaRepository.save(PersonaRepository.create({
                 nombrecompleto: "Pedro",
-                correo:"pedro@gmail.com",
-                password: await encryptPassword("pedrito"),
+                correo: "pedro@gmail.com",
+                password: await encryptPassword("pedrito123"),
                 rut: "19345156-2",
-                rol: "alumno",
+                rol: "Alumno",
                 direccion: "Maipu 32",
                 localidad: "Concepcion",
                 edad: 27,
             })),
-            userRepository.save(userRepository.create({
+            PersonaRepository.save(PersonaRepository.create({
                 nombrecompleto: "Alex",
                 correo: "alex125@gmail.com",
                 password: await encryptPassword("Profesor213"),
@@ -62,7 +64,7 @@ export async function createPersonas() {
             })),
         ]);
         console.log("Usuarios creados correctamente");
-    }catch (error){
-        console.error("Error al crear usuarions", error)
+    } catch (error) {
+        console.error("Error al crear usuarios:", error.message);
     }
 }

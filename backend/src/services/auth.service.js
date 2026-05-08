@@ -21,8 +21,8 @@ export const login = async ({ correo, password }) => {
             throw { status: 401, message: "Contraseña incorrecta" };
         }
 
-        if (persona.rol !== "admin") {
-            throw { status: 403, message: "Acceso solo para administradores" };
+        if (persona.rol.toLowerCase() !== "admin") {
+        throw { status: 403, message: "Acceso solo para administradores" };
         }
 
         const token = jwt.sign(
@@ -60,7 +60,6 @@ export const register = async (data) => {
 
         const nuevaPersona = personaRepository.create({
             ...data,
-            rol: "admin",
             password: hashedPassword
         });
 
