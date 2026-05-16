@@ -38,3 +38,14 @@ AppDataSource.initialize()
     .catch((error) => {
         console.error("Error DB:", error);
     });
+
+    // ... imports
+const asistenciasRouter = require('./routes/asistenciasRoutes');
+
+// ... en app.use
+app.use('/asistencias', asistenciasRouter);
+// ... otros imports
+const evaluacionesPracticasRouter = require('./routes/evaluacionesPracticasRoutes');
+
+// ... en app.use
+app.use('/evaluaciones-practicas', evaluacionesPracticasRouter);
