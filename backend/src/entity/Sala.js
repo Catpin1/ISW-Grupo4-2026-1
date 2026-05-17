@@ -22,7 +22,7 @@ columns: {
         nullable: false,
     },
     disponible:{
-        type: "Boolean",
+        type: "boolean",
         nullable: false,
     }
 }
