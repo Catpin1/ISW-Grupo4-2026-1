@@ -1,6 +1,7 @@
 "use strict";
 
 import { AppDataSource } from "../config/configDb.js"; 
+import bcrypt from "bcryptjs";
 const personaRepository = AppDataSource.getRepository("Persona");
 
 export const getPersonas = async (req, res) => {
@@ -30,6 +31,9 @@ export const getPersona = async (req, res) => {
 
 export const createPersona = async (req, res) => {
     try {
+        if (req.body.password) {
+            req.body.password = await bcrypt.hash(req.body.password, 10);
+        }
         const nuevaPersona = personaRepository.create(req.body);
         const resultado = await personaRepository.save(nuevaPersona);
 
@@ -48,6 +52,10 @@ export const updatePersona = async (req, res) => {
 
         if (!persona) {
             return res.status(404).json({ message: "Persona no encontrada" });
+        }
+
+        if (req.body.password) {
+            req.body.password = await bcrypt.hash(req.body.password, 10);
         }
 
         personaRepository.merge(persona, req.body);
