@@ -2,7 +2,7 @@
 
 import { EntitySchema } from "typeorm";
 
-const planSchema = new EntitySchema({
+const PlanSchema = new EntitySchema({
 name: "Plan",
 tableName: "Planes",
 columns: {
@@ -22,3 +22,5 @@ columns: {
     }
 }
 })
+
+export default PlanSchema;

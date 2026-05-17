@@ -27,3 +27,5 @@ columns: {
     }
 }
 })
+
+export default SalaSchema;

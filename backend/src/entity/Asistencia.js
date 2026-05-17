@@ -33,3 +33,5 @@ columns: {
     }
 }
 })
+
+export default AsistenciaSchema;
