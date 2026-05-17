@@ -22,3 +22,5 @@ columns: {
     }
 }
 })
+
+export default EvaluacionTeoricaSchema;

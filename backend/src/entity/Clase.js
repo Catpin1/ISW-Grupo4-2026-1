@@ -28,3 +28,5 @@ columns: {
 
 }
 })
+
+export default ClaseSchema;

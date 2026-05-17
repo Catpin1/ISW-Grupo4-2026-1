@@ -32,3 +32,5 @@ columns: {
 
 }
 })
+
+export default EvaluacionPracticaSchema;
