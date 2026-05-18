@@ -24,7 +24,7 @@ const CompraSchema = new EntitySchema({
         estado_pago: {
             type: "varchar",
             length: 50,
-            default: "'Pendiente'",
+            default: "Pendiente",
             nullable: false,
         },
         fecha: {
