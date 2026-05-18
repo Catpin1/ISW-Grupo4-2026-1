@@ -57,6 +57,7 @@ export const register = async (data) => {
 
         const nuevaPersona = personaRepository.create({
             ...data,
+            rol: "Usuario",
             password: hashedPassword
         });
 
@@ -74,7 +75,7 @@ export const register = async (data) => {
 
     } catch (error) {
 
-      
+
         if (error.code === "23505") {
             throw { status: 400, message: "El RUT o correo ya están registrados" };
         }
