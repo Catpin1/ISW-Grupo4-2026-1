@@ -1,4 +1,102 @@
-body {
+:root {
+  /* Paleta "Moderna y Vibrante" */
+  --color-primary: #00897B;
+  /* Turquesa Oscuro */
+  --color-secondary: #4DB6AC;
+  /* Menta */
+  --color-accent: #A5D6A7;
+  /* Verde Pálido */
+  --color-bg: #ECEFF1;
+  /* Gris Muy Claro */
+  --color-surface: #FFFFFF;
+  /* Blanco */
+
+  --color-text-main: #263238;
+  --color-text-light: #607D8B;
+  --color-error: #e57373;
+
+  /* Elevación y Sombras */
+  --shadow-sm: 0 2px 4px rgba(0, 137, 123, 0.1);
+  --shadow-md: 0 8px 16px rgba(0, 137, 123, 0.15);
+
+  /* Bordes */
+  --radius-md: 12px;
+  --radius-lg: 24px;
+}
+
+* {
   margin: 0;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  min-height: 100vh;
+}
+
+/* Clases utilitarias globales */
+.card-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #CFD8DC;
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.3s ease;
+  background: var(--color-surface);
+}
+
+.input-field:focus {
+  border-color: var(--color-primary);
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 450px;
+  padding: 2.5rem;
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
