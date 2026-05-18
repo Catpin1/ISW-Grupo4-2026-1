@@ -11,10 +11,7 @@ const CompraSchema = new EntitySchema({
             primary: true,
             generated: true,
         },
-        id_usuario: {
-            type: "int",
-            nullable: false,
-        },
+
         descripcion: {
             type: "varchar",
             length: 255,
@@ -33,6 +30,18 @@ const CompraSchema = new EntitySchema({
         fecha: {
             type: "timestamp",
             createDate: true,
+            nullable: false,
+        }
+    },
+    relations: {
+        persona: {
+            target: "Persona",
+            type: "many-to-one",
+            joinColumn: {
+                name: "id_persona",
+                referencedColumnName: "id",
+            },
+            onDelete: "CASCADE",
             nullable: false,
         }
     }
