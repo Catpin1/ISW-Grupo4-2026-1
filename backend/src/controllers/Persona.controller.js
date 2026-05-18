@@ -2,6 +2,8 @@
 
 import { AppDataSource } from "../config/configDb.js"; 
 import bcrypt from "bcryptjs";
+import { personaCreateSchema, personaUpdateSchema } from "../validations/Persona.val.js";
+import { sendErrorClient } from "../handlers/ResponseHandlers.js";
 const personaRepository = AppDataSource.getRepository("Persona");
 
 export const getPersonas = async (req, res) => {
@@ -31,6 +33,11 @@ export const getPersona = async (req, res) => {
 
 export const createPersona = async (req, res) => {
     try {
+        const { error } = personaCreateSchema.validate(req.body);
+        if (error) {
+            return sendErrorClient(res, error, 400);
+        }
+
         if (req.body.password) {
             req.body.password = await bcrypt.hash(req.body.password, 10);
         }
@@ -46,6 +53,11 @@ export const createPersona = async (req, res) => {
 
 export const updatePersona = async (req, res) => {
     try {
+        const { error } = personaUpdateSchema.validate(req.body);
+        if (error) {
+            return sendErrorClient(res, error, 400);
+        }
+
         const { id } = req.params;
 
         const persona = await personaRepository.findOneBy({ id: parseInt(id) });
