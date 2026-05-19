@@ -1,4 +1,5 @@
 const { getDbClient } = require('../db/connection');
+const salaAsignarSeSaPSI = require('../services/salaAsignarSeSaPSI.service'); 
 
 // 1. Obtener TODAS las salas
 const getAllSalas = async (req, res) => {
