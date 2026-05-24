@@ -18,7 +18,7 @@ const Sidebar = () => {
 
     // Definición de todos los ítems y qué roles pueden verlos
     const allMenuItems = [
-        { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['admin', 'profesor', 'alumno', 'secretaria'] },
+        { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['admin', 'profesor', 'alumno', 'secretaria', 'usuario'] },
         { path: '/administracion', label: 'Administración', icon: Users, badge: 2, roles: ['admin'] },
         { path: '/configuracion', label: 'Configuración', icon: Settings, badge: 1, roles: ['admin'] },
         { path: '/planificacion', label: 'Planificación', icon: Calendar, badge: 1, roles: ['admin', 'secretaria'] },
@@ -32,8 +32,10 @@ const Sidebar = () => {
     // Filtramos el menú para que solo se muestren los que incluyen el rol del usuario
     const menuItems = allMenuItems.filter(item => {
         if (!user) return false;
-        const userRole = user.rol?.toLowerCase() || '';
-        const normalizedRole = userRole === 'administrador' ? 'admin' : userRole;
+        const userRoleRaw = user.rol || user.role || '';
+        const userRole = String(userRoleRaw).toLowerCase();
+        const isManager = ['admin', 'administrador', 'admins'].includes(userRole);
+        const normalizedRole = isManager ? 'admin' : userRole;
         return item.roles.includes(normalizedRole);
     });
 

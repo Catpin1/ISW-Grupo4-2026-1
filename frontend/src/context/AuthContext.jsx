@@ -26,7 +26,18 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('user');
 
         if (token && storedUser) {
-            setUser(JSON.parse(storedUser));
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                // Si el usuario guardado tiene una propiedad "user" anidada (el bug anterior), lo reparamos
+                if (parsedUser && parsedUser.user && parsedUser.token) {
+                    setUser(parsedUser.user);
+                    localStorage.setItem('user', JSON.stringify(parsedUser.user));
+                } else {
+                    setUser(parsedUser);
+                }
+            } catch (e) {
+                console.error("Error parsing stored user", e);
+            }
         }
         setLoading(false);
     }, []);
@@ -35,11 +46,12 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await api.post('/auth/login', { correo, password });
 
-            const { token, data } = res.data;
+            // El backend devuelve: { success, message, data: { user, token } }
+            const { user: userData, token } = res.data.data;
 
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(data));
-            setUser(data);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
 
             return { success: true };
         } catch (error) {

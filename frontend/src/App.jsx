@@ -22,12 +22,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles) {
-    const userRole = user.rol?.toLowerCase() || '';
-    // Aceptamos 'admin' o 'administrador' como equivalentes por seguridad
-    const normalizedUserRole = userRole === 'administrador' ? 'admin' : userRole;
+    const userRoleRaw = user.rol || user.role || '';
+    const userRole = String(userRoleRaw).toLowerCase();
+    
+    // Normalizamos variaciones de administrador
+    const isManager = ['admin', 'administrador', 'admins'].includes(userRole);
+    const normalizedUserRole = isManager ? 'admin' : userRole;
     
     if (!allowedRoles.includes(normalizedUserRole)) {
-      return <Navigate to="/dashboard" replace />;
+      // Para evitar un loop infinito si falla en el mismo dashboard
+      return <Navigate to="/login" replace />;
     }
   }
   
@@ -53,7 +57,7 @@ function App() {
           
           {/* Rutas de Plataforma */}
           <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno', 'secretaria']}><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno', 'secretaria', 'usuario']}><Dashboard /></ProtectedRoute>} />
             <Route path="/administracion" element={<ProtectedRoute allowedRoles={['admin']}><Administracion /></ProtectedRoute>} />
             <Route path="/configuracion" element={<ProtectedRoute allowedRoles={['admin']}><Configuracion /></ProtectedRoute>} />
             <Route path="/planificacion" element={<ProtectedRoute allowedRoles={['admin', 'secretaria']}><Planificacion /></ProtectedRoute>} />
