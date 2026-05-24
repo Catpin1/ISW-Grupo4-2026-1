@@ -23,7 +23,7 @@ export async function createPersonas() {
         //Generar usuarios Iniciales
         await Promise.all([
             PersonaRepository.save(PersonaRepository.create({
-                nombrecompleto: "Admin",
+                nombrecompleto: "Gonzalo Gonzalez",
                 correo: "admin@conduccion.com",
                 password: await encryptPassword("admin123"),
                 rut: "12345678-9",
