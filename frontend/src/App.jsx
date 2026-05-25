@@ -14,6 +14,17 @@ import Evaluaciones from './pages/Evaluaciones';
 import Clases from './pages/Clases';
 import Salas from './pages/Salas';
 import Solicitudes from './pages/Solicitudes';
+const getDefaultRouteByRole = (role) => {
+  const defaultRoutes = {
+    Admin: '/dashboard',
+    Secretario: '/dashboard',
+    Profesor: '/horarios',
+    Alumno: '/horarios',
+    Usuario: '/solicitudes',
+  };
+
+  return defaultRoutes[role] || '/login';
+};
 
 // Componente para proteger rutas según rol
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -22,16 +33,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles) {
-    const userRoleRaw = user.rol || user.role || '';
-    const userRole = String(userRoleRaw).toLowerCase();
+    const userRole = user.rol || user.role || '';
     
-    // Normalizamos variaciones de administrador
-    const isManager = ['admin', 'administrador', 'admins'].includes(userRole);
-    const normalizedUserRole = isManager ? 'admin' : userRole;
-    
-    if (!allowedRoles.includes(normalizedUserRole)) {
-      // Para evitar un loop infinito si falla en el mismo dashboard
-      return <Navigate to="/login" replace />;
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to={getDefaultRouteByRole(userRole)} replace />;
     }
   }
   
@@ -42,7 +47,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 const GuestRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <div>Cargando...</div>;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to={getDefaultRouteByRole(user.rol || user.role)} replace />;
   return children;
 };
 
@@ -57,15 +62,15 @@ function App() {
           
           {/* Rutas de Plataforma */}
           <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno', 'secretaria', 'usuario']}><Dashboard /></ProtectedRoute>} />
-            <Route path="/administracion" element={<ProtectedRoute allowedRoles={['admin']}><Administracion /></ProtectedRoute>} />
-            <Route path="/configuracion" element={<ProtectedRoute allowedRoles={['admin']}><Configuracion /></ProtectedRoute>} />
-            <Route path="/planificacion" element={<ProtectedRoute allowedRoles={['admin', 'secretaria']}><Planificacion /></ProtectedRoute>} />
-            <Route path="/horarios" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno', 'secretaria']}><Horarios /></ProtectedRoute>} />
-            <Route path="/evaluaciones" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno']}><Evaluaciones /></ProtectedRoute>} />
-            <Route path="/clases" element={<ProtectedRoute allowedRoles={['admin', 'profesor', 'alumno']}><Clases /></ProtectedRoute>} />
-            <Route path="/salas" element={<ProtectedRoute allowedRoles={['admin', 'secretaria']}><Salas /></ProtectedRoute>} />
-            <Route path="/solicitudes" element={<ProtectedRoute allowedRoles={['admin', 'secretaria', 'alumno']}><Solicitudes /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['Admin', 'Secretario']}><Dashboard /></ProtectedRoute>} />
+            <Route path="/administracion" element={<ProtectedRoute allowedRoles={['Admin']}><Administracion /></ProtectedRoute>} />
+            <Route path="/configuracion" element={<ProtectedRoute allowedRoles={['Admin']}><Configuracion /></ProtectedRoute>} />
+            <Route path="/planificacion" element={<ProtectedRoute allowedRoles={['Admin', 'Secretario']}><Planificacion /></ProtectedRoute>} />
+            <Route path="/horarios" element={<ProtectedRoute allowedRoles={['Admin', 'Profesor', 'Alumno', 'Secretario']}><Horarios /></ProtectedRoute>} />
+            <Route path="/evaluaciones" element={<ProtectedRoute allowedRoles={['Admin', 'Profesor', 'Alumno']}><Evaluaciones /></ProtectedRoute>} />
+            <Route path="/clases" element={<ProtectedRoute allowedRoles={['Admin', 'Profesor', 'Alumno']}><Clases /></ProtectedRoute>} />
+            <Route path="/salas" element={<ProtectedRoute allowedRoles={['Admin', 'Secretario']}><Salas /></ProtectedRoute>} />
+            <Route path="/solicitudes" element={<ProtectedRoute allowedRoles={['Admin', 'Secretario', 'Alumno', 'Usuario']}><Solicitudes /></ProtectedRoute>} />
           </Route>
         </Routes>
       </Router>

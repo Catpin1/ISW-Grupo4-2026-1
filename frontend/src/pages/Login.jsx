@@ -2,6 +2,18 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
+const getDefaultRouteByRole = (role) => {
+    const defaultRoutes = {
+        Admin: '/dashboard',
+        Secretario: '/dashboard',
+        Profesor: '/horarios',
+        Alumno: '/horarios',
+        Usuario: '/solicitudes',
+    };
+
+    return defaultRoutes[role] || '/login';
+};
+
 const Login = () => {
     const [correo, setCorreo] = useState('');
     const [password, setPassword] = useState('');
@@ -19,7 +31,7 @@ const Login = () => {
         const result = await login(correo, password);
 
         if (result.success) {
-            navigate('/dashboard');
+            navigate(getDefaultRouteByRole(result.user?.rol || result.user?.role), { replace: true });
         } else {
             setError(result.message);
         }

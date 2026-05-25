@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Search, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +6,12 @@ import { useAuth } from '../../context/AuthContext';
 const MainLayout = () => {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
 
     // Helper to format pathname to title
     const getPageTitle = (pathname) => {
@@ -40,7 +46,7 @@ const MainLayout = () => {
                             </div>
                         </div>
                         <button
-                            onClick={logout}
+                            onClick={handleLogout}
                             style={{ background: 'transparent', border: 'none', color: 'var(--color-error)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                             title="Cerrar Sesión"
                         >

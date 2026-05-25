@@ -60,7 +60,7 @@ const Dashboard = () => {
             <div className="platform-table-card">
                 <div className="platform-table-header">
                     <h3>Clases Recientes</h3>
-                    {['admin', 'profesor'].includes(user?.rol) && (
+                    {['Admin', 'Profesor'].includes(user?.rol) && (
                         <button className="btn-primary" style={{ width: 'auto', padding: '0.5rem 1rem' }}>+ Nueva Clase</button>
                     )}
                 </div>

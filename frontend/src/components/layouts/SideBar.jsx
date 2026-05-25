@@ -16,27 +16,24 @@ import { useAuth } from '../../context/AuthContext';
 const Sidebar = () => {
     const { user } = useAuth();
 
-    // Definición de todos los ítems y qué roles pueden verlos
+    // ACA !!! OJO: Definición de todos los ítems y qué roles pueden verlos
     const allMenuItems = [
-        { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['admin', 'profesor', 'alumno', 'secretaria', 'usuario'] },
-        { path: '/administracion', label: 'Administración', icon: Users, badge: 2, roles: ['admin'] },
-        { path: '/configuracion', label: 'Configuración', icon: Settings, badge: 1, roles: ['admin'] },
-        { path: '/planificacion', label: 'Planificación', icon: Calendar, badge: 1, roles: ['admin', 'secretaria'] },
-        { path: '/horarios', label: 'Horarios', icon: Clock, badge: 1, roles: ['admin', 'profesor', 'alumno', 'secretaria'] },
-        { path: '/evaluaciones', label: 'Evaluaciones', icon: ClipboardList, badge: 4, roles: ['admin', 'profesor', 'alumno'] },
-        { path: '/clases', label: 'Clases', icon: BookOpen, badge: 7, roles: ['admin', 'profesor', 'alumno'] },
-        { path: '/salas', label: 'Salas', icon: Building, badge: 6, roles: ['admin', 'secretaria'] },
-        { path: '/solicitudes', label: 'Solicitudes', icon: FileText, badge: 3, roles: ['admin', 'secretaria', 'alumno'] },
+        { path: '/dashboard', label: 'Dashboard', icon: Home, roles: ['Admin', 'Secretario'] },
+        { path: '/administracion', label: 'Administración', icon: Users, badge: 2, roles: ['Admin'] },
+        { path: '/configuracion', label: 'Configuración', icon: Settings, badge: 1, roles: ['Admin'] },
+        { path: '/planificacion', label: 'Planificación', icon: Calendar, badge: 1, roles: ['Admin', 'Secretario'] },
+        { path: '/horarios', label: 'Horarios', icon: Clock, badge: 1, roles: ['Admin', 'Profesor', 'Alumno', 'Secretario'] },
+        { path: '/evaluaciones', label: 'Evaluaciones', icon: ClipboardList, badge: 4, roles: ['Admin', 'Profesor', 'Alumno'] },
+        { path: '/clases', label: 'Clases', icon: BookOpen, badge: 7, roles: ['Admin', 'Profesor', 'Alumno'] },
+        { path: '/salas', label: 'Salas', icon: Building, badge: 6, roles: ['Admin', 'Secretario'] },
+        { path: '/solicitudes', label: 'Solicitudes', icon: FileText, badge: 3, roles: ['Admin', 'Secretario', 'Alumno', 'Usuario'] },
     ];
 
-    // Filtramos el menú para que solo se muestren los que incluyen el rol del usuario
+   
     const menuItems = allMenuItems.filter(item => {
         if (!user) return false;
-        const userRoleRaw = user.rol || user.role || '';
-        const userRole = String(userRoleRaw).toLowerCase();
-        const isManager = ['admin', 'administrador', 'admins'].includes(userRole);
-        const normalizedRole = isManager ? 'admin' : userRole;
-        return item.roles.includes(normalizedRole);
+        const userRole = user.rol || user.role || '';
+        return item.roles.includes(userRole);
     });
 
     return (
