@@ -10,7 +10,7 @@ import {
     getPersona,
     createPersona,
     updatePersona,
-    deletePersona,  
+    deletePersona,
 } from "../controllers/Persona.controller.js";
 
 const router = Router();
@@ -19,11 +19,11 @@ router.use(authenticateJwt);
 
 router
 
-.get("/", authorizeRoles("Admin"), getPersonas)
-.get("/:id", authorizeRoles("Admin"), getPersona)
-.post("/", uploadFields, authorizeRoles("Admin"), createPersona)
-.patch("/:id", uploadFields, authorizeRoles("Admin"), updatePersona)
-.put("/:id", uploadFields, authorizeRoles("Admin"), updatePersona)
-.delete("/:id", authorizeRoles("Admin"), deletePersona);
+    .get("/", authorizeRoles("Admin", "Secretario"), getPersonas)
+    .get("/:id", authorizeRoles("Admin", "Secretario"), getPersona)
+    .post("/", uploadFields, authorizeRoles("Admin"), createPersona)
+    .patch("/:id", uploadFields, authorizeRoles("Admin", "Secretario"), updatePersona)
+    .put("/:id", uploadFields, authorizeRoles("Admin", "Secretario"), updatePersona)
+    .delete("/:id", authorizeRoles("Admin"), deletePersona);
 
 export default router;
