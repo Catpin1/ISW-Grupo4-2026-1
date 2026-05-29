@@ -54,3 +54,4 @@ const VehiculoSchema = new EntitySchema({
 })
 
 export default VehiculoSchema;
+
