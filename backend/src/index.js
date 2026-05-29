@@ -32,7 +32,7 @@ AppDataSource.initialize()
         await createPersonas();
         
         app.listen(PORT, () => {
-            console.log(`Servidor en http://localhost:${PORT}`);
+            console.log(`Servidor en http://${HOST}:${PORT}`);
         });
     })
     .catch((error) => {
