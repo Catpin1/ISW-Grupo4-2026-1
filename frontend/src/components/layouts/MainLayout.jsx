@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import Sidebar from './SideBar';
 import { Search, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
