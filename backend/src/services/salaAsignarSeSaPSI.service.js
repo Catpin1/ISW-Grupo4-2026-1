@@ -3,6 +3,9 @@
 // una secretaria, luego se debe validar que la sala existe, luego se debe validar que 
 // los horarios son validos y finalmente se debe guardar en la base de datos.
 'use strict';
+import { getDbClient } from "../config/database.js";
+import {salaSchema} from "../entity/Sala.js";
+import {personaSchema} from "../entity/Persona.js";
 
 const salaAsignarSeSaPSI = {
   /**
