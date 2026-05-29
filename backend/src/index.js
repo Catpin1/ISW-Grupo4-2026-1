@@ -11,30 +11,42 @@ import { createPersonas } from "./config/initialSetup.js";
 
 const app = express();
 
+// Config
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "localhost";
+
+// Middlewares
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/api", routes);
 
 app.get("/", (req, res) => {
     res.send("API funcionando");
 });
 
-const PORT = process.env.PORT || 3000;
-
-AppDataSource.initialize()
-    .then(async () => {
+// Inicializar DB + servidor
+async function startServer() {
+    try {
+        await AppDataSource.initialize();
         console.log("Base de datos conectada");
-        
-        // Crear usuarios iniciales
+
         await createPersonas();
-        
-        app.listen(PORT, () => {
-            console.log(`Servidor en http://${HOST}:${PORT}`);
+
+        app.listen(PORT, "0.0.0.0", () => {
+            console.log(`Servidor corriendo en:`);
+            console.log(`   Local:   http://localhost:${PORT}`);
+            console.log(`   Network: http://${HOST}:${PORT}`);
         });
-    })
-    .catch((error) => {
-        console.error("Error DB:", error);
-    });
+
+    } catch (error) {
+        console.error("Error al iniciar servidor:");
+        console.error(error);
+        process.exit(1);
+    }
+}
+
+startServer();
