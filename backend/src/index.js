@@ -4,12 +4,19 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import routes from "./routes/index.routes.js";
 import { AppDataSource } from "./config/configDb.js";
 import { createPersonas } from "./config/initialSetup.js";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.resolve(__dirname, "../../frontend/dist");
+const frontendIndexPath = path.join(frontendDistPath, "index.html");
 
 // Config
 const PORT = process.env.PORT || 3000;
@@ -24,9 +31,17 @@ app.use(cookieParser());
 // Routes
 app.use("/api", routes);
 
-app.get("/", (req, res) => {
-    res.send("API funcionando");
-});
+if (fs.existsSync(frontendIndexPath)) {
+    app.use(express.static(frontendDistPath));
+
+    app.get(/^(?!\/api).*/, (req, res) => {
+        res.sendFile(frontendIndexPath);
+    });
+} else {
+    app.get("/", (req, res) => {
+        res.send("API funcionando");
+    });
+}
 
 // Inicializar DB + servidor
 async function startServer() {
