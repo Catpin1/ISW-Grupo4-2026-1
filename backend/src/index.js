@@ -56,12 +56,18 @@ async function startServer() {
             console.log(`   Local:   http://localhost:${PORT}`);
             console.log(`   Network: http://${HOST}:${PORT}`);
         });
+    })
+    .catch((error) => {
+        console.error("Error DB:", error);
+    });
 
-    } catch (error) {
-        console.error("Error al iniciar servidor:");
-        console.error(error);
-        process.exit(1);
-    }
-}
+    // ... imports
+const asistenciasRouter = require('./routes/asistenciasRoutes');
 
-startServer();
+// ... en app.use
+app.use('/asistencias', asistenciasRouter);
+// ... otros imports
+const evaluacionesPracticasRouter = require('./routes/evaluacionesPracticasRoutes');
+
+// ... en app.use
+app.use('/evaluaciones-practicas', evaluacionesPracticasRouter);
