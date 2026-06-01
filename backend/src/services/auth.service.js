@@ -21,9 +21,6 @@ export const login = async ({ correo, password }) => {
             throw { status: 401, message: "Contraseña incorrecta" };
         }
 
-        if (persona.rol.toLowerCase() !== "admin") {
-        throw { status: 403, message: "Acceso solo para administradores" };
-        }
 
         const token = jwt.sign(
             {
@@ -60,13 +57,14 @@ export const register = async (data) => {
 
         const nuevaPersona = personaRepository.create({
             ...data,
+            rol: "Usuario",
             password: hashedPassword
         });
 
         const resultado = await personaRepository.save(nuevaPersona);
 
         return {
-            message: "Usuario admin creado correctamente",
+            message: "Usuario creado correctamente",
             user: {
                 id: resultado.id,
                 correo: resultado.correo,
@@ -77,7 +75,7 @@ export const register = async (data) => {
 
     } catch (error) {
 
-      
+
         if (error.code === "23505") {
             throw { status: 400, message: "El RUT o correo ya están registrados" };
         }

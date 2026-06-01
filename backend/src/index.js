@@ -4,35 +4,57 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import routes from "./routes/index.routes.js";
 import { AppDataSource } from "./config/configDb.js";
 import { createPersonas } from "./config/initialSetup.js";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.resolve(__dirname, "../../frontend/dist");
+const frontendIndexPath = path.join(frontendDistPath, "index.html");
 
+// Config
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "localhost";
+
+// Middlewares
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/api", routes);
 
-app.get("/", (req, res) => {
-    res.send("API funcionando");
-});
+if (fs.existsSync(frontendIndexPath)) {
+    app.use(express.static(frontendDistPath));
 
-const PORT = process.env.PORT || 3000;
+    app.get(/^(?!\/api).*/, (req, res) => {
+        res.sendFile(frontendIndexPath);
+    });
+} else {
+    app.get("/", (req, res) => {
+        res.send("API funcionando");
+    });
+}
 
-AppDataSource.initialize()
-    .then(async () => {
+// Inicializar DB + servidor
+async function startServer() {
+    try {
+        await AppDataSource.initialize();
         console.log("Base de datos conectada");
-        
-        // Crear usuarios iniciales
+
         await createPersonas();
-        
-        app.listen(PORT, () => {
-            console.log(`Servidor en http://localhost:${PORT}`);
+
+        app.listen(PORT, "0.0.0.0", () => {
+            console.log(`Servidor corriendo en:`);
+            console.log(`   Local:   http://localhost:${PORT}`);
+            console.log(`   Network: http://${HOST}:${PORT}`);
         });
     })
     .catch((error) => {

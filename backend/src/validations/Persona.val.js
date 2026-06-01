@@ -10,9 +10,9 @@ if (!rut || !correo || !password || !nombrecompleto || !rol || !direccion || !lo
     });
 }
 
-// 2. Validar RUT (Chileno o genérico)
-// Nota: Si necesitas validación estricta del dígito verificador, se requiere una función de algoritmo.
-// Aquí validamos formato básico: números y un guion opcional, máximo 20 chars.
+// 2. Validar RUT 
+
+//todavia falta el algoritmo unico del rut
 const rutLimpiado = rut.replace(/\./g, '').replace('-', '').toUpperCase(); // Normalizar
 if (rutLimpiado.length < 5 || rutLimpiado.length > 12) { // Ajustar según tu país (ej: Chile suele ser 8-9 chars + DV)
     return res.status(400).json({ 
@@ -20,8 +20,7 @@ if (rutLimpiado.length < 5 || rutLimpiado.length > 12) { // Ajustar según tu pa
         error: "El RUT tiene un formato inválido (muy corto o muy largo)." 
     });
 }
-// Opcional: Validar que la longitud coincida con el estándar de tu país
-// Ejemplo Chile: 8 dígitos + guion + 1 DV = 10 chars aprox.
+
 if (!/^[0-9Kk]{1,9}-[0-9Kk]{1}$/.test(rut)) {
     return res.status(400).json({ 
         success: false, 
@@ -51,8 +50,8 @@ if (password.length < 6) {
         error: "La contraseña debe tener al menos 6 caracteres." 
     });
 }
-// Opcional: Exigir mayúscula, número o especial
-// if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) { ... }
+
+
 
 // 5. Validar Nombre Completo
 if (nombrecompleto.trim().length < 3 || nombrecompleto.trim().length > 100) {
@@ -126,8 +125,7 @@ try {
 }
 
 // 10. Hash de Contraseña (CRÍTICO)
-// NUNCA guardes la contraseña en texto plano.
-// Asegúrate de tener instalado 'bcrypt' o similar: npm install bcrypt
+//no se si tenemos el hash, creoq ue lo vi antes
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const passwordHash = await bcrypt.hash(password, saltRounds);
