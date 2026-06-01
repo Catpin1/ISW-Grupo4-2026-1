@@ -3,11 +3,13 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || '/api';
+
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: API_BASE_URL,
 });
 
-// Interceptor para agregar el token
+
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -21,14 +23,14 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Si hay un token, asumimos que está logueado por ahora (se podría validar contra un endpoint /me)
+        
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
 
         if (token && storedUser) {
             try {
                 const parsedUser = JSON.parse(storedUser);
-                // Si el usuario guardado tiene una propiedad "user" anidada (el bug anterior), lo reparamos
+            
                 if (parsedUser && parsedUser.user && parsedUser.token) {
                     setUser(parsedUser.user);
                     localStorage.setItem('user', JSON.stringify(parsedUser.user));
