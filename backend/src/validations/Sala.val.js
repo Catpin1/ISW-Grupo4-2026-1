@@ -75,8 +75,3 @@ if (typeof disponible === 'boolean') {
     });
 }
 
-// ... AQUÍ VA TU CÓDIGO DE INSERT ACTUAL ...
-// await client.query(
-//     "INSERT INTO salas (tipo, cantidadmaxima, disponible) VALUES (?, ?, ?)",
-//     [tipoTrimmed, capacidadNum, esDisponible]
-// );

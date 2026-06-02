@@ -91,8 +91,3 @@ try {
     return res.status(500).json({ success: false, error: "Error al verificar existencia del vehículo." });
 }
 
-// ... AQUÍ VA TU CÓDIGO DE INSERT ACTUAL ...
-// await client.query(
-//     "INSERT INTO Vehiculos (matricula, tipo, modelo, marca, disponible) VALUES (?, ?, ?, ?, ?)",
-//     [matriculaNorm, tipoNorm, modeloNorm, marcaNorm, esDisponible]
-// );

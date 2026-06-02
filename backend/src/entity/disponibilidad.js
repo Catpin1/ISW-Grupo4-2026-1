@@ -11,7 +11,7 @@ const DisponibilidadSchema = new EntitySchema({
       generated: true,
     },
     fechaCarga: {
-      type: "datetime",
+      type: "timestamp",
       default: () => "CURRENT_TIMESTAMP"
     },
     horarios: {
