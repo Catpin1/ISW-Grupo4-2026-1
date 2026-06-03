@@ -1,26 +1,24 @@
-const express = require('express');
-const router = express.Router();
-const {
+"use strict";
+
+import { Router } from "express";
+import { authenticateJwt } from "../middleware/authentication.mw.js";
+import { authorizeRoles } from "../middleware/authorization.mw.js";
+
+import {
     getAllPlanes,
     getPlanById,
     createPlan,
     updatePlan,
-    deletePlan
-} = require('../controllers/planesController');
+    deletePlan,
+} from "../controllers/Plan.controller.js";
 
-// GET /planes
-router.get('/', getAllPlanes);
+const router = Router();
 
-// GET /planes/:id
-router.get('/:id', getPlanById);
+router
+    .get("/", getAllPlanes)
+    .get("/:id", getPlanById)
+    .post("/", authenticateJwt, authorizeRoles("Admin", "Secretario"), createPlan)
+    .put("/:id", authenticateJwt, authorizeRoles("Admin", "Secretario"), updatePlan)
+    .delete("/:id", authenticateJwt, authorizeRoles("Admin", "Secretario"), deletePlan);
 
-// POST /planes
-router.post('/', createPlan);
-
-// PUT /planes/:id
-router.put('/:id', updatePlan);
-
-// DELETE /planes/:id
-router.delete('/:id', deletePlan);
-
-module.exports = router;
+export default router;

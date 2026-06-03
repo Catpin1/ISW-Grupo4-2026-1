@@ -11,14 +11,14 @@ const DisponibilidadSchema = new EntitySchema({
       generated: true,
     },
     fechaCarga: {
-      type: "datetime",
-      default: () => "CURRENT_TIMESTAMP"
+      type: "timestamp",
+      nullable: false,
     },
     horarios: {
       type: "json", // Guarda el array de horarios como texto JSON
       nullable: false
     }
-}
+  }
 });
 
 export default DisponibilidadSchema;

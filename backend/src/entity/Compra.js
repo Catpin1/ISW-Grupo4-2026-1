@@ -11,7 +11,6 @@ const CompraSchema = new EntitySchema({
             primary: true,
             generated: true,
         },
-
         descripcion: {
             type: "varchar",
             length: 255,
@@ -24,13 +23,23 @@ const CompraSchema = new EntitySchema({
         estado_pago: {
             type: "varchar",
             length: 50,
-            default: "Pendiente",
+            default: "Pendiente de validacion",
             nullable: false,
         },
         fecha: {
             type: "timestamp",
             createDate: true,
             nullable: false,
+        },
+        comprobante: {
+            type: "varchar",
+            length: 300,
+            nullable: true,
+        },
+        comentario_admin: {
+            type: "varchar",
+            length: 800,
+            nullable: true,
         }
     },
     relations: {
@@ -42,6 +51,15 @@ const CompraSchema = new EntitySchema({
                 referencedColumnName: "id",
             },
             onDelete: "CASCADE",
+            nullable: false,
+        },
+        plan: {
+            target: "Plan",
+            type: "many-to-one",
+            joinColumn: {
+                name: "id_plan",
+                referencedColumnName: "id",
+            },
             nullable: false,
         }
     }

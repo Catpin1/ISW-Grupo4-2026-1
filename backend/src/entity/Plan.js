@@ -10,6 +10,13 @@ columns: {
         type: "int",
         nullable: false,
         primary: true,
+        generated: true,
+
+    },
+    nombre:{
+        type: "varchar",
+        length: 100,
+        nullable: false,
     },
     precio:{
         type: "int",

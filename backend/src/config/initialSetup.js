@@ -68,3 +68,46 @@ export async function createPersonas() {
         console.error("Error al crear usuarios:", error.message);
     }
 }
+
+export async function createPlanes() {
+    try {
+        const PlanRepository = AppDataSource.getRepository("Plan");
+        const planesIniciales = [
+            {
+                nombre: "Basico",
+                precio: 100000,
+                descripcion: "Plan basico de conduccion"
+            },
+            {
+                nombre: "Extension",
+                precio: 150000,
+                descripcion: "Plan extension con clases adicionales"
+            },
+            {
+                nombre: "Intensivo",
+                precio: 200000,
+                descripcion: "Plan intensivo de preparacion completa"
+            },
+        ];
+
+        let planesCreados = 0;
+
+        for (const plan of planesIniciales) {
+            const planExistente = await PlanRepository.findOneBy({ nombre: plan.nombre });
+
+            if (!planExistente) {
+                await PlanRepository.save(PlanRepository.create(plan));
+                planesCreados++;
+            }
+        }
+
+        if (planesCreados === 0) {
+            console.log("Planes ya existen, omitiendo creacion");
+            return;
+        }
+
+        console.log(`${planesCreados} plan(es) creado(s) correctamente`);
+    } catch (error) {
+        console.error("Error al crear planes:", error.message);
+    }
+}

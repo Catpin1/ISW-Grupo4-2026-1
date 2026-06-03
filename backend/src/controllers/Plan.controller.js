@@ -1,180 +1,175 @@
-const { getDbClient } = require('../db/connection');
+"use strict";
 
-// 1. Obtener todos los planes
-const getAllPlanes = async (req, res) => {
-    const client = await getDbClient();
+import { AppDataSource } from "../config/configDb.js";
+import { sendErrorClient, sendSuccess, sendErrorServer } from "../handlers/ResponseHandlers.js";
+
+const planRepository = AppDataSource.getRepository("Plan");
+
+const validarId = (id) => {
+    const idNumerico = Number(id);
+    return Number.isInteger(idNumerico) && idNumerico > 0 ? idNumerico : null;
+};
+
+const validarDatosPlan = ({ id, nombre, precio, descripcion }, requiereId = false) => {
+    if (requiereId && validarId(id) === null) {
+        return "El id del plan debe ser un numero entero positivo.";
+    }
+
+    if (nombre !== undefined && (typeof nombre !== "string" || nombre.trim() === "")) {
+        return "El nombre del plan es obligatorio y debe ser texto.";
+    }
+
+    if (precio !== undefined) {
+        const precioNumerico = Number(precio);
+        if (!Number.isInteger(precioNumerico) || precioNumerico < 0) {
+            return "El precio debe ser un numero entero no negativo.";
+        }
+    }
+
+    if (descripcion !== undefined && (typeof descripcion !== "string" || descripcion.trim() === "")) {
+        return "La descripcion del plan es obligatoria y debe ser texto.";
+    }
+
+    if (nombre !== undefined && nombre.trim().length > 100) {
+        return "El nombre no puede exceder los 100 caracteres.";
+    }
+
+    if (descripcion !== undefined && descripcion.trim().length > 500) {
+        return "La descripcion no puede exceder los 500 caracteres.";
+    }
+
+    return null;
+};
+
+export const getAllPlanes = async (req, res) => {
     try {
-        // Ordenamos por precio (opcional)
-        const result = await client.query(
-            "SELECT id, precio, descripcion FROM planes ORDER BY precio ASC"
-        );
-        
-        res.json({
-            success: true,
-            data: result
+        const planes = await planRepository.find({
+            order: {
+                precio: "ASC",
+            },
         });
+
+        return sendSuccess(res, planes, "Planes obtenidos correctamente");
     } catch (error) {
-        console.error("Error al obtener planes:", error);
-        res.status(500).json({ success: false, error: "Error del servidor" });
+        return sendErrorServer(res, error, 500);
     }
 };
 
-// 2. Obtener un plan por ID
-const getPlanById = async (req, res) => {
-    const client = await getDbClient();
-    const { id } = req.params;
-
+export const getPlanById = async (req, res) => {
     try {
-        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+        const id = validarId(req.params.id);
 
-        const result = await client.query(
-            "SELECT id, precio, descripcion FROM planes WHERE id = ?",
-            [id]
-        );
+        if (id === null) {
+            return sendErrorClient(res, new Error("ID invalido."), 400);
+        }
 
-        const plan = result;
+        const plan = await planRepository.findOneBy({ id });
 
         if (!plan) {
-            return res.status(404).json({ success: false, error: "Plan no encontrado" });
+            return res.status(404).json({ message: "Plan no encontrado" });
         }
 
-        res.json({ success: true, data: plan });
+        return sendSuccess(res, plan, "Plan obtenido correctamente");
     } catch (error) {
-        res.status(500).json({ success: false, error: "Error del servidor" });
+        return sendErrorServer(res, error, 500);
     }
 };
 
-// 3. Crear nuevo plan
-const createPlan = async (req, res) => {
-    const client = await getDbClient();
-    const { precio, descripcion } = req.body;
-
+export const createPlan = async (req, res) => {
     try {
-        // Validación de campos requeridos
-        if (precio === undefined || descripcion === undefined) {
-            return res.status(400).json({ 
-                error: "Faltan campos obligatorios: precio y descripcion" 
-            });
+        const { nombre, precio, descripcion } = req.body;
+        const errorValidacion = validarDatosPlan(req.body);
+
+        if (errorValidacion) {
+            return sendErrorClient(res, new Error(errorValidacion), 400);
         }
 
-        // Validación de tipo y valor
-        const precioNum = parseInt(precio);
-        if (isNaN(precioNum) || precioNum < 0) {
-            return res.status(400).json({ error: "El precio debe ser un entero no negativo" });
+        if (nombre === undefined || precio === undefined || descripcion === undefined) {
+            return sendErrorClient(res, new Error("Los campos nombre, precio y descripcion son obligatorios."), 400);
         }
 
-        // Validación de longitud y contenido
-        if (typeof descripcion !== 'string' || descripcion.trim() === '') {
-            return res.status(400).json({ error: "La descripción debe ser un texto no vacío" });
-        }
-        
-        if (descripcion.length > 500) {
-            return res.status(400).json({ error: "La descripción no puede exceder 500 caracteres" });
+        const planExistente = await planRepository.findOneBy({ nombre: nombre.trim() });
+
+        if (planExistente) {
+            return sendErrorClient(res, new Error("Ya existe un plan con ese nombre."), 409);
         }
 
-        // SQL: INSERT
-        const result = await client.query(
-            "INSERT INTO planes (precio, descripcion) VALUES (?, ?)",
-            [precioNum, descripcion.trim()]
-        );
-
-        res.status(201).json({
-            success: true,
-            mensaje: "Plan creado",
-            data: {
-                id: result.insertId,
-                precio: precioNum,
-                descripcion: descripcion.trim()
-            }
+        const nuevoPlan = planRepository.create({
+            nombre: nombre.trim(),
+            precio: Number(precio),
+            descripcion: descripcion.trim(),
         });
 
+        const resultado = await planRepository.save(nuevoPlan);
+
+        return sendSuccess(res, resultado, "Plan creado correctamente", 201);
     } catch (error) {
-        console.error("Error al crear plan:", error);
-        res.status(500).json({ success: false, error: "Error al guardar en BD" });
+        return sendErrorServer(res, error, 500);
     }
 };
 
-// 4. Actualizar plan
-const updatePlan = async (req, res) => {
-    const client = await getDbClient();
-    const { id } = req.params;
-    const { precio, descripcion } = req.body;
-
+export const updatePlan = async (req, res) => {
     try {
-        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+        const id = validarId(req.params.id);
 
-        let query = "UPDATE planes SET ";
-        let values = [];
-        const updates = [];
-
-        if (precio !== undefined) {
-            const precioNum = parseInt(precio);
-            if (isNaN(precioNum) || precioNum < 0) {
-                return res.status(400).json({ error: "El precio debe ser un entero no negativo" });
-            }
-            updates.push("precio = ?");
-            values.push(precioNum);
+        if (id === null) {
+            return sendErrorClient(res, new Error("ID invalido."), 400);
         }
 
-        if (descripcion !== undefined) {
-            if (typeof descripcion !== 'string' || descripcion.trim() === '') {
-                return res.status(400).json({ error: "La descripción no puede estar vacía" });
-            }
-            if (descripcion.length > 500) {
-                return res.status(400).json({ error: "La descripción no puede exceder 500 caracteres" });
-            }
-            updates.push("descripcion = ?");
-            values.push(descripcion.trim());
+        const { nombre, precio, descripcion } = req.body;
+
+        if (nombre === undefined && precio === undefined && descripcion === undefined) {
+            return sendErrorClient(res, new Error("No hay datos para actualizar."), 400);
         }
 
-        if (updates.length === 0) {
-            return res.status(400).json({ error: "No hay datos para actualizar" });
+        const errorValidacion = validarDatosPlan(req.body);
+
+        if (errorValidacion) {
+            return sendErrorClient(res, new Error(errorValidacion), 400);
         }
 
-        query += updates.join(", ") + " WHERE id = ?";
-        values.push(parseInt(id));
+        const plan = await planRepository.findOneBy({ id });
 
-        const result = await client.query(query, values);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, error: "Plan no encontrado" });
+        if (!plan) {
+            return res.status(404).json({ message: "Plan no encontrado" });
         }
 
-        res.json({ success: true, mensaje: "Plan actualizado" });
+        planRepository.merge(plan, {
+            ...(nombre !== undefined && { nombre: nombre.trim() }),
+            ...(precio !== undefined && { precio: Number(precio) }),
+            ...(descripcion !== undefined && { descripcion: descripcion.trim() }),
+        });
 
+        const resultado = await planRepository.save(plan);
+
+        return sendSuccess(res, resultado, "Plan actualizado correctamente");
     } catch (error) {
-        res.status(500).json({ success: false, error: "Error al actualizar" });
+        return sendErrorServer(res, error, 500);
     }
 };
 
-// 5. Eliminar plan
-const deletePlan = async (req, res) => {
-    const client = await getDbClient();
-    const { id } = req.params;
-
+export const deletePlan = async (req, res) => {
     try {
-        if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+        const id = validarId(req.params.id);
 
-        const result = await client.query("DELETE FROM planes WHERE id = ?", [id]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, error: "Plan no encontrado" });
+        if (id === null) {
+            return sendErrorClient(res, new Error("ID invalido."), 400);
         }
 
-        res.json({ success: true, mensaje: "Plan eliminado" });
+        const plan = await planRepository.findOneBy({ id });
+
+        if (!plan) {
+            return res.status(404).json({ message: "Plan no encontrado" });
+        }
+
+        await planRepository.remove(plan);
+
+        return sendSuccess(res, plan, "Plan eliminado correctamente");
     } catch (error) {
-        // Manejo de integridad referencial si hay estudiantes vinculados a este plan
-        if (error.code === 'ER_ROW_IS_REFERENCED' || error.code === 'ER_NO_REFERENCED_ROW_2') {
-            return res.status(400).json({ success: false, error: "No se puede eliminar el plan porque está siendo utilizado por registros asociados." });
+        if (error.code === "23503") {
+            return sendErrorClient(res, new Error("No se puede eliminar el plan porque esta asociado a compras."), 400);
         }
-        res.status(500).json({ success: false, error: "Error al eliminar" });
-    }
-};
 
-module.exports = {
-    getAllPlanes,
-    getPlanById,
-    createPlan,
-    updatePlan,
-    deletePlan
+        return sendErrorServer(res, error, 500);
+    }
 };

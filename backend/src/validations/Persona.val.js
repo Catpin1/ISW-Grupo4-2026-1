@@ -1,137 +1,219 @@
-// ... dentro de tu función createPersona(req, res)
+"use strict";
 
-const { rut, correo, password, nombrecompleto, rol, direccion, localidad, edad } = req.body;
+import Joi from "joi";
 
-// 1. Validar campos requeridos básicos
-if (!rut || !correo || !password || !nombrecompleto || !rol || !direccion || !localidad || edad === undefined) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "Todos los campos son obligatorios: rut, correo, password, nombrecompleto, rol, direccion, localidad, edad." 
-    });
-}
-
-// 2. Validar RUT 
-
-//todavia falta el algoritmo unico del rut
-const rutLimpiado = rut.replace(/\./g, '').replace('-', '').toUpperCase(); // Normalizar
-if (rutLimpiado.length < 5 || rutLimpiado.length > 12) { // Ajustar según tu país (ej: Chile suele ser 8-9 chars + DV)
-    return res.status(400).json({ 
-        success: false, 
-        error: "El RUT tiene un formato inválido (muy corto o muy largo)." 
-    });
-}
-
-if (!/^[0-9Kk]{1,9}-[0-9Kk]{1}$/.test(rut)) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "Formato de RUT inválido. Debe ser como: 12345678-9 o 12.345.678-9." 
-    });
-}
-
-// 3. Validar Correo
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-if (!emailRegex.test(correo)) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "El correo electrónico tiene un formato inválido." 
-    });
-}
-if (correo.length > 100) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "El correo excede los 100 caracteres." 
-    });
-}
-
-// 4. Validar Contraseña (Seguridad)
-if (password.length < 6) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "La contraseña debe tener al menos 6 caracteres." 
-    });
-}
-
-
-
-// 5. Validar Nombre Completo
-if (nombrecompleto.trim().length < 3 || nombrecompleto.trim().length > 100) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "El nombre completo debe tener entre 3 y 100 caracteres." 
-    });
-}
-
-// 6. Validar Rol
-const rolesPermitidos = ['admin', 'instructor', 'alumno', 'secretario']; // Ajusta según tu sistema
-if (!rolesPermitidos.includes(rol.toLowerCase())) {
-    return res.status(400).json({ 
-        success: false, 
-        error: `Rol inválido. Los valores permitidos son: ${rolesPermitidos.join(', ')}.` 
-    });
-}
-if (rol.length > 13) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "El rol excede los 13 caracteres." 
-    });
-}
-
-// 7. Validar Direcciones y Localidad
-if (direccion.length > 100 || direccion.trim().length === 0) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "La dirección debe tener entre 1 y 100 caracteres." 
-    });
-}
-if (localidad.length > 100 || localidad.trim().length === 0) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "La localidad debe tener entre 1 y 100 caracteres." 
-    });
-}
-
-// 8. Validar Edad
-const edadNum = parseInt(edad);
-if (isNaN(edadNum) || edadNum < 0 || edadNum > 120) {
-    return res.status(400).json({ 
-        success: false, 
-        error: "La edad debe ser un número entero entre 0 y 120." 
-    });
-}
-
-// 9. Verificar Unicidad (RUT y Correo)
-// Esto es vital porque la BD tiene restricciones UNIQUE, pero es mejor fallar antes con un mensaje claro.
-try {
-    // Verificar RUT
-    const [rutCheck] = await client.query("SELECT id FROM personas WHERE rut = ?", [rutLimpiado]);
-    if (rutCheck.length > 0) {
-        return res.status(409).json({ 
-            success: false, 
-            error: "Ya existe una persona registrada con este RUT." 
-        });
+const domainEmailValidator = (value, helper) => {
+    if (!value.endsWith("@gmail.cl") && !value.endsWith("@gmail.com")) {
+        return helper.message(
+            "El correo electrónico debe ser del dominio @gmail.cl o @gmail.com"
+        );
     }
+    return value;
+};
 
-    // Verificar Correo
-    const [correoCheck] = await client.query("SELECT id FROM personas WHERE correo = ?", [correo.toLowerCase()]);
-    if (correoCheck.length > 0) {
-        return res.status(409).json({ 
-            success: false, 
-            error: "Ya existe una persona registrada con este correo electrónico." 
-        });
-    }
-} catch (dbError) {
-    console.error("Error en verificación de unicidad:", dbError);
-    return res.status(500).json({ success: false, error: "Error al verificar datos existentes." });
-}
+export const personaCreateSchema = Joi.object({
+    correo: Joi.string()
+        .min(10)
+        .max(100)
+        .email()
+        .required()
+        .messages({
+            "string.empty": "El correo electrónico no puede estar vacío.",
+            "string.base": "El correo electrónico debe ser de tipo string.",
+            "string.email": "El correo electrónico debe ser válido.",
+            "string.min": "El correo electrónico debe tener como mínimo 10 caracteres.",
+            "string.max": "El correo electrónico debe tener como máximo 100 caracteres.",
+            "any.required": "El correo electrónico es obligatorio."
+        })
+        .custom(domainEmailValidator, "Validación dominio email"),
 
-// 10. Hash de Contraseña (CRÍTICO)
-//no se si tenemos el hash, creoq ue lo vi antes
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const passwordHash = await bcrypt.hash(password, saltRounds);
+    password: Joi.string()
+        .min(8)
+        .max(26)
+        .pattern(/^[a-zA-Z0-9]+$/)
+        .required()
+        .messages({
+            "string.empty": "La contraseña no puede estar vacía.",
+            "string.base": "La contraseña debe ser de tipo string.",
+            "string.min": "La contraseña debe tener como mínimo 8 caracteres.",
+            "string.max": "La contraseña debe tener como máximo 26 caracteres.",
+            "string.pattern.base": "La contraseña solo puede contener letras y números.",
+            "any.required": "La contraseña es obligatoria."
+        }),
 
+    nombrecompleto: Joi.string()
+        .min(10)
+        .max(100)
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+        .required()
+        .messages({
+            "string.empty": "El nombre completo no puede estar vacío.",
+            "string.base": "El nombre completo debe ser de tipo string.",
+            "string.min": "El nombre completo debe tener como mínimo 10 caracteres.",
+            "string.max": "El nombre completo debe tener como máximo 100 caracteres.",
+            "string.pattern.base": "El nombre completo solo puede contener letras y espacios.",
+            "any.required": "El nombre completo es obligatorio."
+        }),
 
- await client.query(
-   "INSERT INTO personas (rut, correo, password, nombrecompleto, rol, direccion, localidad, edad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [rutLimpiado, correo.toLowerCase(), passwordHash, nombrecompleto.trim(), rol.toLowerCase(), direccion.trim(), localidad.trim(), edadNum]
- );
+    rut: Joi.string()
+        .min(9)
+        .max(12)
+        .pattern(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d{6}|[1-2]\d{7}|29\.999\.999|29999999)-[\dkK]$/)
+        .required()
+        .messages({
+            "string.empty": "El rut no puede estar vacío.",
+            "string.base": "El rut debe ser de tipo string.",
+            "string.min": "El rut debe tener como mínimo 9 caracteres.",
+            "string.max": "El rut debe tener como máximo 12 caracteres.",
+            "string.pattern.base": "Formato rut inválido, debe ser xx.xxx.xxx-x o xxxxxxxx-x.",
+            "any.required": "El rut es obligatorio."
+        }),
+
+    rol: Joi.string()
+        .min(4)
+        .max(13)
+        .required()
+        .messages({
+            "string.empty": "El rol no puede estar vacío.",
+            "string.base": "El rol debe ser de tipo string.",
+            "string.min": "El rol debe tener como mínimo 4 caracteres.",
+            "string.max": "El rol debe tener como máximo 13 caracteres.",
+            "any.required": "El rol es obligatorio."
+        }),
+
+    direccion: Joi.string()
+        .min(5)
+        .max(100)
+        .required()
+        .messages({
+            "string.empty": "La dirección no puede estar vacía.",
+            "string.base": "La dirección debe ser de tipo string.",
+            "string.min": "La dirección debe tener como mínimo 5 caracteres.",
+            "string.max": "La dirección debe tener como máximo 100 caracteres.",
+            "any.required": "La dirección es obligatoria."
+        }),
+
+    localidad: Joi.string()
+        .min(3)
+        .max(100)
+        .required()
+        .messages({
+            "string.empty": "La localidad no puede estar vacía.",
+            "string.base": "La localidad debe ser de tipo string.",
+            "string.min": "La localidad debe tener como mínimo 3 caracteres.",
+            "string.max": "La localidad debe tener como máximo 100 caracteres.",
+            "any.required": "La localidad es obligatoria."
+        }),
+
+    edad: Joi.number()
+        .integer()
+        .positive()
+        .min(18)
+        .required()
+        .messages({
+            "number.base": "La edad debe ser un número.",
+            "number.integer": "La edad debe ser un número entero.",
+            "number.positive": "La edad debe ser un número positivo.",
+            "number.min": "La edad debe ser de al menos 18 años.",
+            "any.required": "La edad es obligatoria."
+        })
+}).unknown(false).messages({
+    "object.unknown": "No se permiten propiedades adicionales."
+});
+
+export const personaUpdateSchema = Joi.object({
+    correo: Joi.string()
+        .min(10)
+        .max(100)
+        .email()
+        .messages({
+            "string.empty": "El correo electrónico no puede estar vacío.",
+            "string.base": "El correo electrónico debe ser de tipo string.",
+            "string.email": "El correo electrónico debe ser válido.",
+            "string.min": "El correo electrónico debe tener como mínimo 10 caracteres.",
+            "string.max": "El correo electrónico debe tener como máximo 100 caracteres."
+        })
+        .custom(domainEmailValidator, "Validación dominio email"),
+
+    password: Joi.string()
+        .min(8)
+        .max(26)
+        .pattern(/^[a-zA-Z0-9]+$/)
+        .messages({
+            "string.empty": "La contraseña no puede estar vacía.",
+            "string.base": "La contraseña debe ser de tipo string.",
+            "string.min": "La contraseña debe tener como mínimo 8 caracteres.",
+            "string.max": "La contraseña debe tener como máximo 26 caracteres.",
+            "string.pattern.base": "La contraseña solo puede contener letras y números."
+        }),
+
+    nombrecompleto: Joi.string()
+        .min(10)
+        .max(100)
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+        .messages({
+            "string.empty": "El nombre completo no puede estar vacío.",
+            "string.base": "El nombre completo debe ser de tipo string.",
+            "string.min": "El nombre completo debe tener como mínimo 10 caracteres.",
+            "string.max": "El nombre completo debe tener como máximo 100 caracteres.",
+            "string.pattern.base": "El nombre completo solo puede contener letras y espacios."
+        }),
+
+    rut: Joi.string()
+        .min(9)
+        .max(12)
+        .pattern(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d{6}|[1-2]\d{7}|29\.999\.999|29999999)-[\dkK]$/)
+        .messages({
+            "string.empty": "El rut no puede estar vacío.",
+            "string.base": "El rut debe ser de tipo string.",
+            "string.min": "El rut debe tener como mínimo 9 caracteres.",
+            "string.max": "El rut debe tener como máximo 12 caracteres.",
+            "string.pattern.base": "Formato rut inválido, debe ser xx.xxx.xxx-x o xxxxxxxx-x."
+        }),
+
+    rol: Joi.string()
+        .min(4)
+        .max(13)
+        .messages({
+            "string.empty": "El rol no puede estar vacío.",
+            "string.base": "El rol debe ser de tipo string.",
+            "string.min": "El rol debe tener como mínimo 4 caracteres.",
+            "string.max": "El rol debe tener como máximo 13 caracteres."
+        }),
+
+    direccion: Joi.string()
+        .min(5)
+        .max(100)
+        .messages({
+            "string.empty": "La dirección no puede estar vacía.",
+            "string.base": "La dirección debe ser de tipo string.",
+            "string.min": "La dirección debe tener como mínimo 5 caracteres.",
+            "string.max": "La dirección debe tener como máximo 100 caracteres."
+        }),
+
+    localidad: Joi.string()
+        .min(3)
+        .max(100)
+        .messages({
+            "string.empty": "La localidad no puede estar vacía.",
+            "string.base": "La localidad debe ser de tipo string.",
+            "string.min": "La localidad debe tener como mínimo 3 caracteres.",
+            "string.max": "La localidad debe tener como máximo 100 caracteres."
+        }),
+
+    edad: Joi.number()
+        .integer()
+        .positive()
+        .min(18)
+        .messages({
+            "number.base": "La edad debe ser un número.",
+            "number.integer": "La edad debe ser un número entero.",
+            "number.positive": "La edad debe ser un número positivo.",
+            "number.min": "La edad debe ser de al menos 18 años."
+        })
+}).or("correo", "password", "nombrecompleto", "rut", "rol", "direccion", "localidad", "edad")
+    .unknown(false)
+    .messages({
+        "object.unknown": "No se permiten propiedades adicionales.",
+        "object.missing": "Debes proporcionar al menos un campo para actualizar."
+    });
