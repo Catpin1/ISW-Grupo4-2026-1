@@ -36,7 +36,7 @@ const VehiculoSchema = new EntitySchema({
             nullable: false,
         },
 
-        permisoCirculacion: {
+        permisoCirculacion: {// al momento de usar archivos, como multer, es necesario usar postman
             type: "timestamp",
             nullable: false,
         },
